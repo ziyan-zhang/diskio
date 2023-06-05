@@ -3,8 +3,8 @@
  * @Author: 张子岩 Ziyan ZHANG
  * @version: 
  * @Date: 2023-06-02 10:52:58
- * @LastEditors: 张子岩 Ziyan ZHANG
- * @LastEditTime: 2023-06-02 16:15:48
+ * @LastEditors: zy nscc ubuntu22.04 1920548152@qq.com
+ * @LastEditTime: 2023-06-05 20:41:00
  */
 
 #include<stdio.h>
@@ -21,10 +21,13 @@ int main(int argc, char* argv[])
 {
     char filename[] = "myfile05";
     // 100MB
-    char* buffer = (char*)malloc(sizeof(char) * 100 * MB);
-    printf("%ld", sizeof(char) * 100 * MB);
+    long int buffer_size = sizeof(char) * 500 * MB;
+    char* buffer = (char*)malloc(buffer_size);
+    // printf("size of char: %ld\n", sizeof(char));
+    printf("分配的（被拷贝的）buffer size: %ld MB\n", buffer_size / MB);
     buffer[MB] = '\0';
-    size_t bufSize = 100 * MB * 5;  // todo: 乘5是干啥？
+    size_t bufSize = 100 * MB * 5;  // bufSize太大了./运行不出错，gdb可能出错
+    printf("要拷贝的长度bufSize: %ld MB", bufSize / MB);
 
     struct timeval startWriteTime, endWriteTime;
 
@@ -37,9 +40,14 @@ int main(int argc, char* argv[])
         perror("Unable to creat file");
         return -1;
     }
-
+    printf("想要：拷贝大小为%ldMB的buffer，拷贝%ld MB到%s\n", buffer_size / MB, bufSize / MB, filename);
     size_t sizeWrited = write(fd, (void*)buffer, bufSize);
-    printf("write: %ld bytes to %s\n", sizeWrited, filename);
+    if (sizeWrited == -1) {
+        perror("write error");
+        exit(EXIT_FAILURE);
+    }
+    printf("结果：write: %ld MB to %s\n", sizeWrited / MB, filename);
+
     gettimeofday(&endWriteTime, NULL);
     close(fd);
     // 微秒为单位的写入时间
